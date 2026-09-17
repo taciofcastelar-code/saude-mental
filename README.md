@@ -1,29 +1,19 @@
-# Saúde Mental Serra – PWA V5.3
+# Saúde Mental Serra — PWA V5.5
 
-Versão de homologação do monitoramento municipal de saúde mental nas UPAs.
+Aplicativo de gestão e monitoramento do Protocolo Municipal de Manejo Integral das Crises em Saúde Mental.
 
-## Arquitetura V5.3
+## V5.5
+- Dashboard como tela inicial.
+- Separação de indicadores por UPA: Serra Sede, Carapina e Castelândia; HMIS aparece separadamente quando houver dados.
+- Perfil assistencial: faixa etária, tipo de crise, desfecho, intervenções, RAPS prévia e notificação de tentativas de suicídio.
+- Treinamentos integrados à Lista de Presença, com contagem de profissionais únicos e participações.
+- Auditoria transformada em indicador de adesão ao protocolo e mapa de não conformidades.
+- Atendimento permanece coletado exclusivamente pelo Google Forms oficial.
+- Backend agrega métricas sem expor prontuário no Dashboard.
 
-Atendimento assistencial usa uma única fonte oficial de coleta:
+## Homologação
+A configuração atual aponta para a Planilha Mestre TESTE. O acesso ao backend permanece sem autenticação obrigatória durante homologação (`AUTH_REQUIRED=false`). Não utilizar dados restritos reais até a configuração institucional de acesso.
 
-Google Forms → Apps Script V5.3 → Planilha Mestre → Indicadores → Dashboard PWA.
 
-O módulo Atendimento do PWA não grava mais uma segunda ficha; ele abre o Google Forms oficial.
-
-## Componentes
-
-- PWA instalável em GitHub Pages.
-- Atendimento direcionado ao Google Forms oficial.
-- Apps Script V5.3 como gateway de integração.
-- Planilha Mestre TESTE durante homologação.
-- Dashboard conectado à aba Indicadores.
-- Auditoria e Treinamentos mantidos como módulos gerenciais.
-- Tela Status valida o endpoint do Apps Script e a estrutura da Mestre.
-
-## Segurança
-
-A homologação está com AUTH_REQUIRED=false. Não utilizar dados reais restritos até concluir autenticação/autorização institucional. Auditoria contém Prontuário/Código e Treinamentos pode conter identificação profissional.
-
-## Publicação
-
-Substitua os arquivos do repositório pelos arquivos desta versão, mantendo a estrutura de pastas. O service worker usa cache `sm-serra-v5-3-0`, forçando a atualização dos arquivos da PWA.
+## Treinamentos V5.5
+A Lista de Presença é a fonte oficial. O app agrega profissionais únicos por instituição e categoria e não publica dados pessoais dos participantes.

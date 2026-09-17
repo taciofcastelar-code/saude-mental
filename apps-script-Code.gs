@@ -11,7 +11,7 @@ function doGet(e){
     const action=(e&&e.parameter&&e.parameter.action)||'health';
     if(action!=='health')return json({ok:false,error:'Ação GET inválida.'});
     const user=getUserContext(false);
-    return json({ok:true,app:'Saúde Mental Serra V5.3',structure:validarEstrutura(),user:user,forms:{atendimentos:true}});
+    return json({ok:true,app:'Saúde Mental Serra V5.5',structure:validarEstrutura(),user:user,forms:{atendimentos:true}});
   }catch(err){return json({ok:false,error:String(err.message||err)})}
 }
 
@@ -72,7 +72,7 @@ function configurarIntegracaoV53(){
     const result=migrarHistoricoAtendimentosForms_();
     alinharIndicadoresAtendimentos_();
     instalarTriggerAtendimentosV53_();
-    return {ok:true,versao:'5.3',migrados:result.migrados,trigger:true,estrutura:validarEstrutura()};
+    return {ok:true,versao:'5.5',migrados:result.migrados,trigger:true,estrutura:validarEstrutura()};
   }finally{lock.releaseLock()}
 }
 
@@ -267,19 +267,77 @@ function salvarTreinamento(p){
 }
 
 function dashboard(){
-  const sh=ss().getSheetByName('Indicadores'); if(!sh)throw new Error('Aba Indicadores não encontrada.');
-  const perfil=sh.getRange('H4:L14').getDisplayValues();
-  const total=perfil.length>1?perfil[1].slice(1).reduce((s,x)=>s+(Number(String(x).replace(',','.'))||0),0):0;
-  const tent=perfil.length>4?perfil[4].slice(1).reduce((s,x)=>s+(Number(String(x).replace(',','.'))||0),0):0;
-  return {
-    totalAtendimentos:total,
-    tentativas:tent,
-    notificacao:v(sh.getRange('E14').getValue()),
-    cobertura:v(sh.getRange('E5').getValue()),
-    assertividade:v(sh.getRange('E12').getValue()),
-    indicadores:sh.getRange('A4:F14').getDisplayValues(),
-    perfilAtendimentos:perfil
-  };
+  const book=ss();
+  const atend=lerLinhas_(book.getSheetByName('IMPORT_Atendimentos'),5,9);
+  const treino=lerLinhas_(book.getSheetByName('IMPORT_Treinamentos'),5,10);
+  const audit=lerLinhas_(book.getSheetByName('IMPORT_Auditoria'),5,16);
+  const escopos=['Municipal (3 UPAs)','Serra Sede','Carapina','Castelândia','HMIS'];
+  const unidades={};
+  escopos.forEach(e=>unidades[e]={
+    atendimentos:resumoAtendimentos_(filtrarEscopo_(atend,e,2)),
+    treinamento:resumoTreinamentos_(filtrarEscopoTreino_(treino,e)),
+    auditoria:resumoAuditoria_(filtrarEscopo_(audit,e,2))
+  });
+  const comparativo=['Serra Sede','Carapina','Castelândia','HMIS'].map(unidade=>{
+    const x=unidades[unidade];
+    return {unidade,atendimentos:x.atendimentos.total,criseAnsiosa:x.atendimentos.criseAnsiosa,agitacao:x.atendimentos.agitacao,tentativas:x.atendimentos.tentativas,treinados:x.treinamento.profissionaisTreinados,assertividade:x.auditoria.assertividade};
+  });
+  return {versao:'5.5',geradoEm:new Date(),unidades,comparativo,treinamentos:resumoTreinamentos_(treino)};
+}
+function lerLinhas_(sh,startRow,nCols){
+  if(!sh)return [];
+  const last=sh.getLastRow(); if(last<startRow)return [];
+  return sh.getRange(startRow,1,last-startRow+1,nCols).getValues().filter(r=>r.some(v=>v!==''&&v!==null));
+}
+function norm_(v){return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toUpperCase()}
+function unidadeCanonica_(v){
+  const k=norm_(v); if(k.includes('SERRA SEDE'))return 'Serra Sede'; if(k.includes('CARAPINA'))return 'Carapina'; if(k.includes('CASTELANDIA'))return 'Castelândia'; if(k.includes('HMIS'))return 'HMIS'; return 'Outras instituições';
+}
+function filtrarEscopo_(rows,escopo,colUnidade){
+  if(escopo==='Municipal (3 UPAs)')return rows.filter(r=>ALLOWED_UPAS.includes(unidadeCanonica_(r[colUnidade])));
+  return rows.filter(r=>unidadeCanonica_(r[colUnidade])===escopo);
+}
+function filtrarEscopoTreino_(rows,escopo){return filtrarEscopo_(rows,escopo,3)}
+function inc_(o,k,n){k=String(k||'Não informado').trim()||'Não informado';o[k]=(o[k]||0)+(n||1)}
+function resumoAtendimentos_(rows){
+  const tipos={},faixas={},desfechos={},intervencoes={}; let rapsSim=0,rapsResp=0,notifSim=0,notifResp=0,tent=0,totalIntervencoes=0;
+  rows.forEach(r=>{
+    inc_(tipos,r[3]);inc_(faixas,r[4]);inc_(desfechos,r[5]);
+    const tipo=norm_(r[3]); if(tipo.includes('TENTATIVA')&&tipo.includes('SUICID'))tent++;
+    const ir=String(r[6]||'').trim();
+    if(!ir||norm_(ir)==='NAO'){inc_(intervencoes,'Sem intervenção');totalIntervencoes++}
+    else ir.split(',').map(x=>x.trim()).filter(Boolean).forEach(x=>{inc_(intervencoes,x);totalIntervencoes++});
+    const rp=norm_(r[7]); if(rp==='SIM'||rp==='NAO'){rapsResp++;if(rp==='SIM')rapsSim++}
+    if(tipo.includes('TENTATIVA')&&tipo.includes('SUICID')){const nt=norm_(r[8]);if(nt==='SIM'||nt==='NAO'){notifResp++;if(nt==='SIM')notifSim++}}
+  });
+  return {total:rows.length,criseAnsiosa:tipos['Crise ansiosa']||0,agitacao:tipos['Agitação psicomotora']||0,tentativas:tent,rapsPrevio:rapsResp?rapsSim/rapsResp:null,notificacaoTentativas:notifResp?notifSim/notifResp:null,tipos,faixas,desfechos,intervencoes,totalIntervencoes};
+}
+function resumoTreinamentos_(rows){
+  const pessoas=new Map(),categorias={},instituicoes={},matriz={}; let participacoes=0;
+  rows.forEach(r=>{
+    if(norm_(r[5])!=='SIM')return;
+    participacoes++;
+    const nome=String(r[1]||'').trim(); if(!nome)return;
+    const categoria=String(r[2]||'Não informado').trim()||'Não informado';
+    const instituicao=String(r[3]||'Não informado').trim()||'Não informado';
+    const key=norm_(nome);
+    if(!pessoas.has(key)){
+      pessoas.set(key,{nome,categoria,instituicao});
+      inc_(categorias,categoria);
+      inc_(instituicoes,instituicao);
+      if(!matriz[instituicao])matriz[instituicao]={};
+      inc_(matriz[instituicao],categoria);
+    }
+  });
+  return {profissionaisTreinados:pessoas.size,participacoes,categorias,instituicoes,matriz};
+}
+function resumoAuditoria_(rows){
+  const labels=['Avaliação clínica','Sinais vitais','Causa orgânica','Classificação de risco','Risco suicida','Manejo','Contenção','Encaminhamento','Plano de alta','Notificação'];
+  const criterios={}; labels.forEach(x=>criterios[x]={sim:0,nao:0,aplicaveis:0,adesao:null});
+  let sim=0,aplic=0,nao=0;
+  rows.forEach(r=>{for(let i=0;i<10;i++){const v=norm_(r[5+i]);if(v!=='SIM'&&v!=='NAO')continue;criterios[labels[i]].aplicaveis++;aplic++;if(v==='SIM'){criterios[labels[i]].sim++;sim++}else{criterios[labels[i]].nao++;nao++}}});
+  labels.forEach(x=>{const c=criterios[x];c.adesao=c.aplicaveis?c.sim/c.aplicaveis:null});
+  return {totalAuditorias:rows.length,assertividade:aplic?sim/aplic:null,naoConformidades:nao,criterios};
 }
 function v(x){return(x===''||x==null)?null:Number(x)}
 

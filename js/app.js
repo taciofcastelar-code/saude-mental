@@ -4,20 +4,22 @@ import {renderAtendimentos,bindAtendimentos} from './modules/atendimentos.js';
 import {renderAuditoria,bindAuditoria} from './modules/auditoria.js';
 import {renderTreinamentos,bindTreinamentos} from './modules/treinamentos.js';
 import {renderDashboard,bindDashboard} from './modules/dashboard.js';
+import {renderPerfil,bindPerfil} from './modules/perfil.js';
 import {renderStatus,bindStatus} from './modules/status.js';
 
 const app=document.querySelector('#app'),toast=document.querySelector('#toast');
 const routes={
   home:[renderHome,bindGo],
-  atendimentos:[renderAtendimentos,()=>bindAtendimentos(showToast)],
-  auditoria:[renderAuditoria,()=>bindAuditoria(showToast)],
-  treinamentos:[renderTreinamentos,()=>bindTreinamentos(showToast)],
   dashboard:[renderDashboard,bindDashboard],
-  status:[renderStatus,()=>bindStatus(showToast)]
+  perfil:[renderPerfil,bindPerfil],
+  atendimentos:[renderAtendimentos,()=>bindAtendimentos(showToast)],
+  treinamentos:[renderTreinamentos,bindTreinamentos],
+  auditoria:[renderAuditoria,()=>bindAuditoria(showToast)],
+  status:[renderStatus,()=>bindStatus()]
 };
 function showToast(m){toast.textContent=m;toast.classList.remove('hidden');setTimeout(()=>toast.classList.add('hidden'),3400)}
 function bindGo(){document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>navigate(b.dataset.go))}
-function render(){const r=routes[currentRoute()]||routes.home;app.innerHTML=r[0]();r[1]();document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.route===currentRoute()))}
+function render(){const r=routes[currentRoute()]||routes.dashboard;app.innerHTML=r[0]();r[1]();document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.route===currentRoute()))}
 document.querySelectorAll('[data-route]').forEach(b=>b.onclick=()=>navigate(b.dataset.route));
 window.addEventListener('hashchange',render);
 render();

@@ -1,0 +1,15 @@
+SAÚDE MENTAL SERRA — ATUALIZAÇÃO V5.5
+
+FOCO DESTA VERSÃO
+- Treinamentos passam a usar Instituição como dimensão própria.
+- Todo participante da Lista de Presença é considerado treinado.
+- Métricas: profissionais únicos, instituições representadas, categorias profissionais, treinados por instituição, por categoria e matriz Instituição x Categoria.
+- Filtros independentes por instituição e categoria.
+- Dados pessoais (nome, e-mail e telefone) NÃO são enviados/exibidos pelo dashboard público; apenas agregados.
+- Mantidos Painel inicial, Perfil dos Atendimentos, Atendimento via Google Forms e Auditoria de Adesão ao Protocolo.
+
+ATENÇÃO
+1. Substitua os arquivos correspondentes no GitHub mantendo a estrutura de pastas.
+2. Atualize também o Apps Script com apps-script-Code.gs V5.5.
+3. Depois publique uma nova versão da implantação existente, preservando a URL /exec.
+4. Continue usando a Planilha Mestre TESTE durante a homologação.

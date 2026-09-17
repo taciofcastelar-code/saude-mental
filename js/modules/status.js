@@ -13,7 +13,7 @@ export function renderStatus(){
       <strong>Fluxo assistencial</strong>
       <p class="muted">Google Forms → Apps Script → Planilha Mestre → Indicadores → Dashboard</p>
     </div>
-    <p class="muted">Na V5.3 o registro de atendimento é feito pelo Google Forms oficial; não existe fila local de atendimentos no aplicativo.</p>
+    <p class="muted">Na V5.5 o registro de atendimento é feito pelo Google Forms oficial; não existe fila local de atendimentos no aplicativo.</p>
   </section>`;
 }
 
