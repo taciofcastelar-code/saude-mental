@@ -1,0 +1,12 @@
+SAÚDE MENTAL SERRA — ATUALIZAÇÃO GITHUB V5.3
+
+1. Este pacote já contém a estrutura completa necessária para a PWA.
+2. No GitHub, substitua os arquivos do repositório saude-mental pelos arquivos deste pacote, preservando as pastas js/, js/modules/ e assets/.
+3. Não altere a URL do Apps Script em js/config.js.
+4. O botão "Registrar atendimento" passa a abrir o Google Forms oficial.
+5. A fila offline de atendimento foi removida da interface porque o Forms é a fonte oficial.
+6. A tela Status agora valida Apps Script + estrutura da Planilha Mestre.
+7. O cache do service worker foi alterado para V5.3 para evitar que celulares/desktops mantenham JavaScript antigo.
+8. apps-script-Code.gs é uma cópia de referência do backend V5.3 configurado para a PLANILHA TESTE durante a homologação.
+9. Não troque o ID da Planilha TESTE pelo oficial até a homologação final.
+10. Após publicar no GitHub Pages, abra o app, atualize a página e teste: Status, Painel e botão Registrar atendimento.

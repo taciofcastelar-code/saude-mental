@@ -1,57 +1,29 @@
-# Saúde Mental Serra – PWA V5.1
+# Saúde Mental Serra – PWA V5.3
 
-Versão modular para piloto do monitoramento municipal das UPAs.
+Versão de homologação do monitoramento municipal de saúde mental nas UPAs.
 
-## Já implementado
-- PWA instalável: manifest + service worker.
-- Mobile-first e desktop.
-- Módulos: Atendimento, Auditoria, Treinamentos e Dashboard.
-- Atendimento sem nome, CPF, telefone ou endereço do paciente.
-- `Prontuário/Código` somente na Auditoria e fora do Dashboard.
-- Fila offline somente para Atendimento.
-- Auditoria e Treinamentos bloqueados offline por conterem dados restritos/identificação profissional.
-- Camada `api.js` separa o front-end do armazenamento.
-- Modo de demonstração local sem servidor (`MOCK_MODE=true`).
-- Backend Google Apps Script para gravar direto nas abas IMPORT_* da Planilha Mestre.
-- Dashboard conectado à aba `Indicadores`.
+## Arquitetura V5.3
 
-## Testar localmente
-Na pasta do projeto:
+Atendimento assistencial usa uma única fonte oficial de coleta:
 
-```bash
-python -m http.server 8080
-```
+Google Forms → Apps Script V5.3 → Planilha Mestre → Indicadores → Dashboard PWA.
 
-Abra `http://localhost:8080`.
+O módulo Atendimento do PWA não grava mais uma segunda ficha; ele abre o Google Forms oficial.
 
-## Conectar à Planilha Mestre
-1. Abra `apps-script-Code.gs`.
-2. Crie projeto no Google Apps Script e cole o código.
-3. Substitua `COLE_AQUI_O_ID_DA_PLANILHA_MESTRE` pelo ID da Planilha Mestre Google Sheets.
-4. Faça Deploy como Web App.
-5. Copie a URL do Web App.
-6. Em `js/config.js`, cole a URL em `API_URL` e altere `MOCK_MODE` para `false`.
+## Componentes
 
-## Publicar como PWA
-Pode ser publicada em GitHub Pages. HTTPS é necessário para instalação e service worker fora de localhost.
+- PWA instalável em GitHub Pages.
+- Atendimento direcionado ao Google Forms oficial.
+- Apps Script V5.3 como gateway de integração.
+- Planilha Mestre TESTE durante homologação.
+- Dashboard conectado à aba Indicadores.
+- Auditoria e Treinamentos mantidos como módulos gerenciais.
+- Tela Status valida o endpoint do Apps Script e a estrutura da Mestre.
 
 ## Segurança
-Esta entrega é uma base robusta de piloto, não uma solução de autenticação pronta para produção institucional. O seletor/perfil local não deve ser usado como controle de acesso real.
 
-Para produção oficial, adicionar:
-- autenticação Google Workspace/Firebase/Supabase/SSO;
-- autorização por perfil;
-- logs e trilha de auditoria;
-- expiração de sessão;
-- política institucional de acesso ao Google Sheets/Apps Script.
+A homologação está com AUTH_REQUIRED=false. Não utilizar dados reais restritos até concluir autenticação/autorização institucional. Auditoria contém Prontuário/Código e Treinamentos pode conter identificação profissional.
 
-## Migração futura
-O front-end não depende diretamente do Google Sheets. A camada `api.js` permite trocar Apps Script/Sheets por Supabase/PostgreSQL/Firebase sem reconstruir as telas.
+## Publicação
 
-
-## V5.1
-- ID da Planilha Mestre oficial pré-configurado no backend.
-- Endpoint GET `?action=health` para validação sem gravação.
-- Função `testarLeituraSemGravar()`.
-- Tela `Status da integração`.
-- Guia de conexão e homologação incluído.
+Substitua os arquivos do repositório pelos arquivos desta versão, mantendo a estrutura de pastas. O service worker usa cache `sm-serra-v5-3-0`, forçando a atualização dos arquivos da PWA.

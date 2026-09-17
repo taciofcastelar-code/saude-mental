@@ -1,1 +1,23 @@
-import{CONFIG}from'../config.js';import{salvarAtendimento}from'../api.js';export function renderAtendimentos(){return `<section class='card'><h2>Registrar atendimento</h2><form id='formAtendimento'><label>Data do atendimento</label><input type='date' name='data' required><label>UPA</label><select name='upa' required><option value=''>Selecione</option>${CONFIG.UPAS.map(x=>`<option>${x}</option>`).join('')}</select><label>Tipo de atendimento</label><select name='tipo' id='tipoAt' required><option value=''>Selecione</option><option>Crise ansiosa</option><option>Agitação psicomotora</option><option>Tentativa de suicídio</option><option>Outros</option></select><label>Faixa etária</label><select name='faixa' required><option>Criança (0 a 11 anos)</option><option>Adolescente (12 a 17 anos)</option><option>Adulto (18 a 59 anos)</option><option>Idoso (60 anos ou mais)</option></select><label>Desfecho</label><select name='desfecho' required><option>Alta</option><option>Encaminhamento para APS / UBS / URS</option><option>Encaminhamento para CAPS</option><option>Transferência / internação hospitalar</option><option>Outro</option></select><label>Intervenção específica</label><select name='intervencao' required><option>Não</option><option>Medicação</option><option>Contenção verbal</option><option>Contenção química</option><option>Contenção física</option><option>Mais de uma intervenção</option></select><label>Acompanhamento prévio na RAPS?</label><select name='raps' required><option>Sim</option><option>Não</option><option>Não informado</option></select><div id='notifBox' class='hidden'><label>Notificação de violência autoprovocada/tentativa de suicídio realizada?</label><select name='notificacao'><option>Sim</option><option>Não</option><option>Não informado</option></select></div><p class='muted'>Este módulo pode usar fila offline porque não contém identificador direto do paciente.</p><button class='primary' type='submit'>Salvar atendimento</button></form></section>`}export function bindAtendimentos(showToast){const f=document.querySelector('#formAtendimento'),t=document.querySelector('#tipoAt'),b=document.querySelector('#notifBox');t.addEventListener('change',()=>b.classList.toggle('hidden',t.value!=='Tentativa de suicídio'));f.addEventListener('submit',async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(f));if(d.tipo!=='Tentativa de suicídio')d.notificacao='';const r=await salvarAtendimento(d);showToast(r.queued?'Salvo na fila segura para sincronização.':'Atendimento registrado.');f.reset();b.classList.add('hidden')})}
+import {CONFIG} from '../config.js';
+
+export function renderAtendimentos(){
+  return `<section class="card">
+    <h2>Registrar atendimento</h2>
+    <div class="banner ok"><strong>Coleta oficial pelo Google Forms</strong></div>
+    <p>Os atendimentos são registrados no formulário padronizado e enviados automaticamente para a Planilha Mestre pelo Apps Script V5.3.</p>
+    <p class="muted">O aplicativo não mantém uma segunda ficha de atendimento. Isso evita duplicidade e mantém uma única fonte oficial de coleta.</p>
+    <div class="button-row"><button id="openFormAtendimento" class="primary" type="button">Abrir formulário de atendimento</button></div>
+  </section>
+  <section class="card">
+    <h3>Fluxo de integração</h3>
+    <p class="muted">Google Forms → Apps Script V5.3 → Planilha Mestre → Indicadores → Dashboard do aplicativo.</p>
+  </section>`;
+}
+
+export function bindAtendimentos(showToast){
+  const btn=document.querySelector('#openFormAtendimento');
+  btn.onclick=()=>{
+    if(!CONFIG.FORM_ATENDIMENTOS_URL){showToast('Formulário de atendimento não configurado.');return}
+    window.open(CONFIG.FORM_ATENDIMENTOS_URL,'_blank','noopener,noreferrer');
+  };
+}
