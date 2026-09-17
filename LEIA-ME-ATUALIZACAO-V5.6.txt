@@ -1,0 +1,14 @@
+SAÚDE MENTAL SERRA V5.6
+
+- Fonte oficial de treinamentos: Lista de Presença ID 1ls2YhG-vMGasqBXcQbJfTzVYMFi2FnPagIti_p4xL9s, conectada na Planilha Mestre TESTE.
+- Profissões agrupadas em categorias para métricas.
+- Instituições normalizadas: UPA Serra Sede, UPA Carapina, UPA Castelândia, HMIS, RAPS/CAPS e Outros.
+- Datas inconsistentes na coluna DATA são tratadas na camada derivada usando o carimbo de data/hora quando a diferença for superior a 7 dias ou o ano divergir. A fonte original não é alterada.
+- Profissionais únicos são deduplicados globalmente; contagens por instituição/categoria deduplicam dentro de cada dimensão, sem perder quem participou representando mais de uma instituição.
+- Dados pessoais permanecem na planilha; o app público recebe apenas agregados.
+
+
+AJUSTE PARA IMPLANTAÇÃO FINAL:
+- API_URL atualizado para a implantação V5.6 validada.
+- Cache do Service Worker atualizado para sm-serra-v5-6-0.
+- Referências visuais do fluxo atualizadas para Apps Script V5.6.

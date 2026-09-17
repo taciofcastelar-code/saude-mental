@@ -1,7 +1,7 @@
 export const CONFIG = {
-  APP_NAME: 'Saúde Mental Serra V5.5',
-  APP_VERSION: '5.5',
-  API_URL: 'https://script.google.com/macros/s/AKfycby06BeYxWDqHmjqw1V7ZqzdVPtks7-8bNb48pT7M3NjSzEVsyBkgteXJYUpPdkaWdLm/exec',
+  APP_NAME: 'Saúde Mental Serra V5.6',
+  APP_VERSION: '5.6',
+  API_URL: 'https://script.google.com/macros/s/AKfycbyW3znilm9MSQJ5u3syCeO6dRTslLX4JAiMTFDw_7zYSBqtnbQ9NDTotn7MEmaijOFi/exec',
   FORM_ATENDIMENTOS_URL: 'https://docs.google.com/forms/d/e/1FAIpQLSdBFcrzfFgrliXEnUQieoenZdX6mrXX6SJUIbo4fGLUCA2FTA/viewform?usp=header',
   MOCK_MODE: false,
   UPAS: ['Serra Sede','Carapina','Castelândia'],
